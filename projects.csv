@@ -1,0 +1,5 @@
+Title,Tools,Description,Image,Lat,Lon
+Solar Power Plant Site Selection,"ArcGIS Pro; Spatial Analyst","GIS-based suitability analysis for solar plant.","images/solar-map.jpg",31.95,36.8
+Urban Sprawl Analysis,"ArcGIS Pro; Landsat","Analyzed urban growth patterns.","images/urban-sprawl.jpg",31.95,36.85
+Land Use Classification,"ENVI; ArcGIS","Classified land cover using Maximum Likelihood.","images/lulc.jpg",31.9,36.82
+NDVI & Environmental Monitoring,"ArcGIS; Sentinel","Vegetation health analysis using NDVI.","images/ndvi.jpg",31.92,36.8
