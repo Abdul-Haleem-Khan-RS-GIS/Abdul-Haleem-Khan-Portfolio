@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Abdul Haleem Khan — GIS & Remote Sensing</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── RESET & ROOT ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+
+:root{
+  --navy:       #0b1220;
+  --navy-mid:   #111b2e;
+  --navy-light: #1a2740;
+  --navy-card:  #16213a;
+  --copper:     #c8742a;
+  --copper-lt:  #e8944a;
+  --copper-dim: rgba(200,116,42,0.12);
+  --copper-glow:rgba(200,116,42,0.25);
+  --cream:      #f4ede0;
+  --cream-dim:  #c9b99e;
+  --sand:       #8a7660;
+  --teal:       #2a8f8f;
+  --teal-lt:    #3ab5b5;
+  --border:     rgba(200,116,42,0.18);
+  --border-lt:  rgba(244,237,224,0.08);
+
+  --f-display: 'Playfair Display', Georgia, serif;
+  --f-body:    'Crimson Pro', Georgia, serif;
+  --f-mono:    'JetBrains Mono', monospace;
+}
+
+body{
+  background:var(--navy);
+  color:var(--cream);
+  font-family:var(--f-body);
+  font-weight:300;
+  line-height:1.75;
+  overflow-x:hidden;
+  cursor:crosshair;
+}
+
+/* ── CUSTOM CURSOR ── */
+.cursor-dot{
+  width:8px;height:8px;
+  background:var(--copper);
+  border-radius:50%;
+  position:fixed;top:0;left:0;
+  pointer-events:none;
+  z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:transform 0.08s ease, opacity 0.2s;
+  mix-blend-mode:screen;
+}
+.cursor-ring{
+  width:32px;height:32px;
+  border:1px solid var(--copper);
+  border-radius:50%;
+  position:fixed;top:0;left:0;
+  pointer-events:none;
+  z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:transform 0.18s ease, width 0.2s, height 0.2s, border-color 0.2s;
+  opacity:0.6;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--navy)}
+::-webkit-scrollbar-thumb{background:var(--copper);border-radius:2px}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.4rem 4rem;
+  transition:background 0.3s,padding 0.3s;
+}
+nav.scrolled{
+  background:rgba(11,18,32,0.96);
+  padding:1rem 4rem;
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(20px);
+}
+.nav-logo{
+  font-family:var(--f-display);
+  font-weight:700;
+  font-size:1.15rem;
+  letter-spacing:0.04em;
+  color:var(--cream);
+}
+.nav-logo span{color:var(--copper)}
+.nav-links{display:flex;gap:2.5rem;align-items:center}
+.nav-links a{
+  font-family:var(--f-mono);
+  font-size:0.7rem;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--cream-dim);
+  text-decoration:none;
+  position:relative;
+  transition:color 0.2s;
+}
+.nav-links a::after{
+  content:'';
+  position:absolute;bottom:-3px;left:0;right:100%;
+  height:1px;background:var(--copper);
+  transition:right 0.3s ease;
+}
+.nav-links a:hover{color:var(--copper)}
+.nav-links a:hover::after{right:0}
+.nav-cta{
+  font-family:var(--f-mono);font-size:0.68rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  border:1px solid var(--copper);color:var(--copper);
+  padding:0.5rem 1.2rem;border-radius:2px;
+  text-decoration:none;
+  transition:all 0.25s;
+}
+.nav-cta:hover{background:var(--copper);color:var(--navy)}
+
+/* ── HERO ── */
+#hero{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  align-items:center;
+  padding:8rem 4rem 4rem;
+  position:relative;
+  overflow:hidden;
+  gap:4rem;
+}
+
+/* TOPO LINES BACKGROUND */
+.topo-bg{
+  position:absolute;inset:0;
+  opacity:0.055;
+  background-image:
+    radial-gradient(ellipse 120% 80% at 70% 50%, transparent 30%, var(--navy) 75%);
+  overflow:hidden;
+}
+.topo-bg svg{width:100%;height:100%;position:absolute;inset:0}
+
+/* Noise grain overlay */
+#hero::before{
+  content:'';
+  position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;
+  opacity:0.4;
+  z-index:0;
+}
+
+.hero-left{position:relative;z-index:1}
+.hero-right{position:relative;z-index:1;display:flex;justify-content:flex-end}
+
+.hero-eyebrow{
+  font-family:var(--f-mono);
+  font-size:0.68rem;
+  letter-spacing:0.3em;
+  text-transform:uppercase;
+  color:var(--copper);
+  display:flex;align-items:center;gap:1rem;
+  margin-bottom:1.6rem;
+}
+.hero-eyebrow::before{
+  content:'';width:40px;height:1px;
+  background:linear-gradient(to right, var(--copper), transparent);
+}
+.eyebrow-dot{
+  width:6px;height:6px;
+  background:var(--copper);
+  border-radius:50%;
+  animation:breathe 2s ease-in-out infinite;
+}
+@keyframes breathe{
+  0%,100%{box-shadow:0 0 0 0 var(--copper-glow)}
+  50%{box-shadow:0 0 0 6px transparent}
+}
+
+h1{
+  font-family:var(--f-display);
+  font-weight:700;
+  font-size:clamp(3.2rem,5.5vw,5.8rem);
+  line-height:1.0;
+  letter-spacing:-0.02em;
+  margin-bottom:1.8rem;
+}
+h1 .line1{display:block;color:var(--cream)}
+h1 .line2{
+  display:block;
+  color:transparent;
+  -webkit-text-stroke:1.5px var(--copper);
+  font-style:italic;
+}
+h1 .line3{display:block;color:var(--cream-dim);font-size:0.55em;font-weight:400;margin-top:0.3em;letter-spacing:0.02em}
+
+.hero-desc{
+  font-size:1.2rem;
+  font-weight:300;
+  color:var(--cream-dim);
+  max-width:500px;
+  margin-bottom:2.5rem;
+  line-height:1.8;
+  font-style:italic;
+}
+
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:3rem}
+
+.btn-copper{
+  display:inline-flex;align-items:center;gap:0.6rem;
+  background:var(--copper);
+  color:var(--navy);
+  font-family:var(--f-mono);font-size:0.72rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  padding:0.9rem 2rem;border-radius:2px;
+  text-decoration:none;
+  font-weight:500;
+  transition:all 0.25s;
+  border:none;
+}
+.btn-copper:hover{background:var(--copper-lt);transform:translateY(-2px);box-shadow:0 8px 30px var(--copper-glow)}
+
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:0.6rem;
+  border:1px solid var(--border-lt);
+  color:var(--cream-dim);
+  font-family:var(--f-mono);font-size:0.72rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  padding:0.9rem 2rem;border-radius:2px;
+  text-decoration:none;
+  transition:all 0.25s;
+}
+.btn-ghost:hover{border-color:var(--copper);color:var(--copper)}
+
+.hero-stats{
+  display:flex;gap:2.5rem;
+  padding-top:2rem;
+  border-top:1px solid var(--border);
+}
+.stat-item{}
+.stat-n{
+  font-family:var(--f-display);
+  font-weight:700;font-size:2rem;
+  color:var(--copper);
+  line-height:1;
+}
+.stat-l{
+  font-family:var(--f-mono);font-size:0.62rem;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--sand);margin-top:0.3rem;
+}
+
+/* Hero right — decorative map card */
+.hero-map-card{
+  width:100%;max-width:480px;
+  background:var(--navy-card);
+  border:1px solid var(--border);
+  border-radius:4px;
+  overflow:hidden;
+  position:relative;
+}
+.map-card-header{
+  padding:1rem 1.5rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.map-card-title{
+  font-family:var(--f-mono);font-size:0.65rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--copper);
+}
+.map-card-dots{display:flex;gap:6px}
+.map-card-dots span{
+  width:8px;height:8px;border-radius:50%;
+}
+.dot-r{background:#e5534b}
+.dot-y{background:#e3b341}
+.dot-g{background:#3fb950}
+
+.map-canvas{
+  height:340px;position:relative;
+  background:linear-gradient(135deg,#0f1e0f 0%,#1a2e1a 30%,#0d1f2d 60%,#0a1520 100%);
+  overflow:hidden;
+}
+.map-canvas svg{position:absolute;inset:0;width:100%;height:100%}
+.map-card-footer{
+  padding:0.8rem 1.5rem;
+  border-top:1px solid var(--border);
+  display:flex;gap:1.5rem;
+}
+.map-legend-item{
+  display:flex;align-items:center;gap:0.5rem;
+  font-family:var(--f-mono);font-size:0.6rem;
+  letter-spacing:0.06em;text-transform:uppercase;
+  color:var(--sand);
+}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+
+/* ── SECTION COMMON ── */
+.section{
+  padding:7rem 4rem;
+  max-width:1200px;
+  margin:0 auto;
+}
+.section-full{padding:7rem 4rem}
+.full-w{max-width:100%;margin:0}
+
+.s-eyebrow{
+  font-family:var(--f-mono);font-size:0.65rem;
+  letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--copper);display:flex;align-items:center;gap:0.8rem;
+  margin-bottom:0.8rem;
+}
+.s-eyebrow::before{content:'';width:24px;height:1px;background:var(--copper)}
+
+h2{
+  font-family:var(--f-display);
+  font-weight:700;
+  font-size:clamp(2.2rem,4vw,3.5rem);
+  line-height:1.05;
+  letter-spacing:-0.02em;
+  margin-bottom:0.6rem;
+}
+h2 em{font-style:italic;color:var(--copper)}
+
+.s-sub{
+  color:var(--sand);
+  font-size:1.1rem;
+  max-width:500px;
+  margin-bottom:3.5rem;
+  font-style:italic;
+}
+
+.divider{
+  width:100%;height:1px;
+  background:linear-gradient(to right,transparent,var(--border),transparent);
+}
+
+/* ── SKILLS ── */
+#skills{background:var(--navy-mid)}
+
+.skills-wrap{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:4px;
+  overflow:hidden;
+}
+
+.sk-card{
+  background:var(--navy-mid);
+  padding:2rem 1.8rem;
+  transition:background 0.25s;
+  position:relative;
+}
+.sk-card::after{
+  content:'';
+  position:absolute;
+  bottom:0;left:0;right:100%;
+  height:2px;background:var(--copper);
+  transition:right 0.4s ease;
+}
+.sk-card:hover{background:var(--navy-light)}
+.sk-card:hover::after{right:0}
+
+.sk-icon{font-size:1.6rem;margin-bottom:0.9rem}
+.sk-name{
+  font-family:var(--f-display);
+  font-weight:600;font-size:1rem;
+  color:var(--cream);margin-bottom:0.8rem;
+}
+.sk-tags{display:flex;flex-wrap:wrap;gap:0.35rem}
+.sk-tag{
+  font-family:var(--f-mono);font-size:0.6rem;
+  letter-spacing:0.04em;
+  padding:0.2rem 0.55rem;
+  border:1px solid var(--border);
+  border-radius:2px;
+  color:var(--sand);
+  background:rgba(244,237,224,0.03);
+  transition:all 0.2s;
+}
+.sk-card:hover .sk-tag{border-color:var(--copper-dim);color:var(--cream-dim)}
+
+/* ── PROJECTS ── */
+.projects-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1.5rem;
+}
+
+.proj-card{
+  background:var(--navy-card);
+  border:1px solid var(--border);
+  border-radius:4px;overflow:hidden;
+  transition:all 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+  position:relative;
+  cursor:crosshair;
+}
+.proj-card:hover{
+  border-color:var(--copper);
+  transform:translateY(-6px);
+  box-shadow:0 24px 60px rgba(11,18,32,0.8),0 0 0 1px var(--copper-dim);
+}
+
+.proj-visual{
+  height:175px;
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.proj-visual svg{position:absolute;inset:0;width:100%;height:100%}
+.proj-visual-label{
+  position:relative;z-index:1;
+  font-size:2.5rem;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+}
+
+/* Project visual themes */
+.pv-urban{background:linear-gradient(135deg,#080f08 0%,#0e1f0e 40%,#152815 100%)}
+.pv-solar{background:linear-gradient(135deg,#120d00 0%,#261a00 40%,#1c1200 100%)}
+.pv-thermal{background:linear-gradient(135deg,#120000 0%,#2a0808 40%,#1a0505 100%)}
+.pv-carbon{background:linear-gradient(135deg,#040a1a 0%,#0a1228 40%,#081020 100%)}
+.pv-cadastral{background:linear-gradient(135deg,#050f0a 0%,#0d2015 40%,#0a1810 100%)}
+.pv-master{background:linear-gradient(135deg,#0a0a04 0%,#1a1a08 40%,#141408 100%)}
+
+.proj-body{padding:1.5rem}
+
+.proj-cats{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.9rem}
+.proj-cat{
+  font-family:var(--f-mono);font-size:0.58rem;
+  letter-spacing:0.08em;text-transform:uppercase;
+  padding:0.2rem 0.6rem;border-radius:2px;
+  font-weight:500;
+}
+.cat-rs{background:rgba(42,143,143,0.12);color:var(--teal-lt);border:1px solid rgba(42,143,143,0.25)}
+.cat-py{background:rgba(200,116,42,0.1);color:var(--copper-lt);border:1px solid rgba(200,116,42,0.2)}
+.cat-ai{background:rgba(200,116,42,0.08);color:#d4a574;border:1px solid rgba(200,116,42,0.15)}
+.cat-gis{background:rgba(244,237,224,0.06);color:var(--cream-dim);border:1px solid var(--border-lt)}
+
+.proj-title{
+  font-family:var(--f-display);
+  font-weight:700;font-size:1.05rem;
+  color:var(--cream);margin-bottom:0.5rem;
+  line-height:1.3;
+}
+.proj-desc{
+  color:var(--sand);font-size:0.88rem;
+  line-height:1.6;margin-bottom:1.2rem;
+  font-weight:300;
+}
+.proj-link{
+  font-family:var(--f-mono);font-size:0.65rem;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--copper);text-decoration:none;
+  display:flex;align-items:center;gap:0.4rem;
+  transition:gap 0.2s,color 0.2s;
+}
+.proj-link:hover{gap:0.7rem;color:var(--copper-lt)}
+
+/* ── EXPERIENCE ── */
+#experience{background:var(--navy-mid)}
+
+.exp-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:4rem;
+  align-items:start;
+}
+
+.timeline{padding-left:1.5rem;border-left:1px solid var(--border)}
+.tl-item{
+  position:relative;padding:0 0 2.5rem 2rem;
+}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{
+  position:absolute;left:-1.5rem;top:0.4rem;
+  width:10px;height:10px;
+  background:var(--navy-mid);
+  border:2px solid var(--copper);
+  border-radius:50%;
+  transform:translateX(-4px);
+}
+.tl-item:first-child .tl-dot{
+  background:var(--copper);
+}
+.tl-date{
+  font-family:var(--f-mono);font-size:0.62rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--copper);margin-bottom:0.3rem;
+}
+.tl-role{
+  font-family:var(--f-display);font-weight:600;
+  font-size:1.05rem;color:var(--cream);
+  margin-bottom:0.2rem;
+}
+.tl-org{
+  font-family:var(--f-mono);font-size:0.7rem;
+  letter-spacing:0.06em;color:var(--sand);
+  margin-bottom:0.7rem;
+}
+.tl-pts{list-style:none}
+.tl-pt{
+  font-size:0.88rem;color:var(--sand);
+  padding:0.2rem 0;display:flex;gap:0.7rem;
+  align-items:flex-start;
+}
+.tl-pt::before{
+  content:'—';color:var(--copper);
+  flex-shrink:0;font-size:0.8rem;
+}
+
+/* Education + award cards */
+.edu-card{
+  background:var(--navy-card);
+  border:1px solid var(--border);
+  border-radius:4px;padding:2rem;
+  margin-bottom:1.5rem;
+  position:relative;overflow:hidden;
+}
+.edu-card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(to right, var(--copper), var(--teal));
+}
+.edu-tag{
+  font-family:var(--f-mono);font-size:0.6rem;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--copper);margin-bottom:0.5rem;
+}
+.edu-degree{
+  font-family:var(--f-display);font-weight:700;
+  font-size:1.1rem;color:var(--cream);
+  margin-bottom:0.3rem;
+}
+.edu-uni{color:var(--cream-dim);font-size:0.9rem}
+.edu-year{
+  font-family:var(--f-mono);font-size:0.65rem;
+  color:var(--sand);margin-top:0.3rem;
+  letter-spacing:0.06em;
+}
+
+/* ── CONTACT ── */
+#contact{
+  background:
+    radial-gradient(ellipse 60% 50% at 10% 50%, rgba(200,116,42,0.05) 0%, transparent 70%),
+    var(--navy);
+  border-top:1px solid var(--border);
+}
+
+.contact-grid{
+  display:grid;grid-template-columns:1.1fr 1fr;
+  gap:5rem;align-items:center;
+}
+
+.contact-big{
+  font-family:var(--f-display);
+  font-weight:700;
+  font-size:clamp(2.5rem,5vw,5rem);
+  line-height:1.0;letter-spacing:-0.03em;
+  margin-bottom:1.5rem;
+}
+.contact-big em{font-style:italic;color:var(--copper);display:block}
+
+.c-links{display:flex;flex-direction:column;gap:0.8rem;margin-top:2rem}
+.c-link{
+  display:flex;align-items:center;gap:1rem;
+  font-family:var(--f-mono);font-size:0.72rem;
+  letter-spacing:0.06em;color:var(--cream-dim);
+  text-decoration:none;
+  padding:0.7rem 0;
+  border-bottom:1px solid var(--border);
+  transition:color 0.2s;
+}
+.c-link:hover{color:var(--copper)}
+.c-link-ico{
+  width:32px;height:32px;
+  background:var(--copper-dim);
+  border:1px solid var(--border);
+  border-radius:2px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.9rem;flex-shrink:0;
+}
+
+/* Contact form */
+.form-row{margin-bottom:1rem}
+.form-label{
+  display:block;
+  font-family:var(--f-mono);font-size:0.6rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--sand);margin-bottom:0.4rem;
+}
+.form-row input,
+.form-row textarea{
+  width:100%;
+  background:var(--navy-card);
+  border:1px solid var(--border);
+  border-radius:2px;
+  padding:0.85rem 1rem;
+  color:var(--cream);
+  font-family:var(--f-body);
+  font-size:1rem;font-weight:300;
+  outline:none;
+  transition:border-color 0.2s;
+  resize:none;
+}
+.form-row input::placeholder,
+.form-row textarea::placeholder{color:var(--sand);font-style:italic}
+.form-row input:focus,
+.form-row textarea:focus{border-color:var(--copper)}
+.form-row textarea{height:110px}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--navy);
+  border-top:1px solid var(--border);
+  padding:1.8rem 4rem;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.footer-txt{
+  font-family:var(--f-mono);font-size:0.65rem;
+  letter-spacing:0.08em;color:var(--sand);
+}
+.footer-ping{
+  display:flex;align-items:center;gap:0.6rem;
+  font-family:var(--f-mono);font-size:0.6rem;
+  letter-spacing:0.1em;text-transform:uppercase;color:var(--copper);
+}
+.ping-dot{
+  width:6px;height:6px;background:var(--copper);
+  border-radius:50%;animation:breathe 2s ease-in-out infinite;
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal{
+  opacity:0;
+  transform:translateY(40px);
+  transition:opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible{opacity:1;transform:none}
+.reveal-delay-1{transition-delay:0.1s}
+.reveal-delay-2{transition-delay:0.2s}
+.reveal-delay-3{transition-delay:0.35s}
+
+/* ── COUNTER ANIMATION ── */
+.counter{display:inline-block}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  #hero{grid-template-columns:1fr;gap:3rem}
+  .hero-right{justify-content:flex-start}
+  .hero-map-card{max-width:100%}
+  .skills-wrap{grid-template-columns:repeat(2,1fr)}
+  .projects-grid{grid-template-columns:repeat(2,1fr)}
+  .exp-grid{grid-template-columns:1fr;gap:3rem}
+  .contact-grid{grid-template-columns:1fr;gap:3rem}
+}
+@media(max-width:768px){
+  nav{padding:1rem 1.5rem}
+  .nav-links{display:none}
+  .section,.section-full{padding:4.5rem 1.5rem}
+  #hero{padding:7rem 1.5rem 3rem}
+  h1{font-size:2.8rem}
+  h2{font-size:2rem}
+  .skills-wrap{grid-template-columns:1fr}
+  .projects-grid{grid-template-columns:1fr}
+  .hero-stats{flex-wrap:wrap;gap:1.5rem}
+  footer{flex-direction:column;gap:1rem;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor-dot" id="cdot"></div>
+<div class="cursor-ring" id="cring"></div>
+
+<!-- NAV -->
+<nav id="mainnav">
+  <div class="nav-logo">A.H.<span>Khan</span></div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#skills">Skills</a>
+    <a href="#projects">Projects</a>
+    <a href="#experience">Experience</a>
+    <a href="#contact">Contact</a>
+    <a href="https://www.linkedin.com/in/abdul-haleem-khan-rs-gis-specialist/" target="_blank" class="nav-cta">Hire Me</a>
+  </div>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<section id="about" style="padding:0;max-width:100%">
+<div id="hero">
+  <!-- Topo background -->
+  <div class="topo-bg">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <g fill="none" stroke="#c8742a" stroke-width="0.6" opacity="0.7">
+        <ellipse cx="700" cy="380" rx="580" ry="290"/>
+        <ellipse cx="700" cy="380" rx="520" ry="250"/>
+        <ellipse cx="700" cy="380" rx="460" ry="210"/>
+        <ellipse cx="700" cy="380" rx="400" ry="170"/>
+        <ellipse cx="700" cy="380" rx="340" ry="135"/>
+        <ellipse cx="700" cy="380" rx="280" ry="105"/>
+        <ellipse cx="700" cy="380" rx="220" ry="78"/>
+        <ellipse cx="700" cy="380" rx="160" ry="55"/>
+        <ellipse cx="700" cy="380" rx="105" ry="36"/>
+        <ellipse cx="700" cy="380" rx="58" ry="20"/>
+        <!-- Second mountain -->
+        <ellipse cx="280" cy="200" rx="260" ry="130"/>
+        <ellipse cx="280" cy="200" rx="210" ry="100"/>
+        <ellipse cx="280" cy="200" rx="165" ry="75"/>
+        <ellipse cx="280" cy="200" rx="120" ry="55"/>
+        <ellipse cx="280" cy="200" rx="80" ry="37"/>
+        <ellipse cx="280" cy="200" rx="45" ry="22"/>
+        <!-- River line -->
+        <path d="M 0 600 Q 200 560 350 580 Q 500 600 620 545 Q 740 490 900 510 Q 1050 530 1200 490"/>
+        <path d="M 0 620 Q 200 580 350 600 Q 500 618 620 563 Q 740 508 900 528 Q 1050 548 1200 508"/>
+        <!-- Grid lines -->
+        <line x1="0" y1="133" x2="1200" y2="133" stroke-dasharray="4,8"/>
+        <line x1="0" y1="266" x2="1200" y2="266" stroke-dasharray="4,8"/>
+        <line x1="0" y1="533" x2="1200" y2="533" stroke-dasharray="4,8"/>
+        <line x1="0" y1="666" x2="1200" y2="666" stroke-dasharray="4,8"/>
+        <line x1="200" y1="0" x2="200" y2="800" stroke-dasharray="4,8"/>
+        <line x1="400" y1="0" x2="400" y2="800" stroke-dasharray="4,8"/>
+        <line x1="600" y1="0" x2="600" y2="800" stroke-dasharray="4,8"/>
+        <line x1="800" y1="0" x2="800" y2="800" stroke-dasharray="4,8"/>
+        <line x1="1000" y1="0" x2="1000" y2="800" stroke-dasharray="4,8"/>
+        <!-- Coordinate labels -->
+        <text x="198" y="12" fill="#c8742a" font-size="7" font-family="JetBrains Mono,monospace" opacity="0.6">34°N</text>
+        <text x="398" y="12" fill="#c8742a" font-size="7" font-family="JetBrains Mono,monospace" opacity="0.6">72°E</text>
+      </g>
+      <!-- Pins -->
+      <circle cx="700" cy="380" r="5" fill="#c8742a" opacity="0.9"/>
+      <circle cx="700" cy="380" r="12" fill="none" stroke="#c8742a" stroke-width="1" opacity="0.5"/>
+      <circle cx="280" cy="200" r="3" fill="#2a8f8f" opacity="0.8"/>
+    </svg>
+  </div>
+
+  <!-- LEFT CONTENT -->
+  <div class="hero-left">
+    <div class="hero-eyebrow">
+      <div class="eyebrow-dot"></div>
+      Available for Work · Worldwide
+    </div>
+
+    <h1>
+      <span class="line1" style="-webkit-text-stroke:0;color:var(--cream)">Abdul Haleem Khan</span>
+      <span class="line3">GIS Engineer · Remote Sensing Specialist</span>
+    </h1>
+
+    <p class="hero-desc">
+      Transforming satellite imagery and geospatial data into spatial intelligence that shapes cities, monitors environments, and drives decisions.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#projects" class="btn-copper">View Projects ↓</a>
+      <a href="https://www.linkedin.com/in/abdul-haleem-khan-rs-gis-specialist/" target="_blank" class="btn-ghost">LinkedIn →</a>
+      <a href="mailto:abdulhaleemk03@gmail.com" class="btn-ghost">Contact</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-n"><span class="counter" data-target="3">0</span>+</div>
+        <div class="stat-l">Years Experience</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-n"><span class="counter" data-target="30">0</span>+</div>
+        <div class="stat-l">Major Projects</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-n">MSc</div>
+        <div class="stat-l">GIS University of the Punjab</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT — MAP CARD -->
+  <div class="hero-right">
+    <div class="hero-map-card">
+      <div class="map-card-header">
+        <span class="map-card-title">Spatial Analysis Dashboard</span>
+        <div class="map-card-dots">
+          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+        </div>
+      </div>
+      <div class="map-canvas">
+        <svg viewBox="0 0 480 340" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background grid -->
+          <defs>
+            <pattern id="g" width="24" height="24" patternUnits="userSpaceOnUse">
+              <path d="M 24 0 L 0 0 0 24" fill="none" stroke="rgba(200,116,42,0.07)" stroke-width="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="480" height="340" fill="url(#g)"/>
+          <!-- LULC patches - Urban -->
+          <rect x="60" y="40" width="90" height="70" rx="2" fill="rgba(200,116,42,0.25)" stroke="rgba(200,116,42,0.5)" stroke-width="0.5"/>
+          <rect x="110" y="80" width="60" height="50" rx="1" fill="rgba(200,116,42,0.35)" stroke="rgba(200,116,42,0.6)" stroke-width="0.5"/>
+          <!-- Vegetation -->
+          <rect x="200" y="20" width="120" height="90" rx="3" fill="rgba(42,143,143,0.2)" stroke="rgba(42,143,143,0.4)" stroke-width="0.5"/>
+          <rect x="240" y="100" width="80" height="60" rx="2" fill="rgba(42,143,143,0.25)" stroke="rgba(42,143,143,0.5)" stroke-width="0.5"/>
+          <!-- Agriculture -->
+          <rect x="20" y="130" width="100" height="80" rx="2" fill="rgba(99,153,34,0.2)" stroke="rgba(99,153,34,0.4)" stroke-width="0.5"/>
+          <rect x="80" y="190" width="70" height="60" rx="1" fill="rgba(99,153,34,0.15)" stroke="rgba(99,153,34,0.35)" stroke-width="0.5"/>
+          <!-- Water -->
+          <ellipse cx="370" cy="80" rx="50" ry="35" fill="rgba(55,138,221,0.2)" stroke="rgba(55,138,221,0.4)" stroke-width="0.5"/>
+          <!-- More urban growth (new) -->
+          <rect x="140" y="180" width="100" height="80" rx="2" fill="rgba(200,116,42,0.15)" stroke="rgba(200,116,42,0.35)" stroke-width="0.5" stroke-dasharray="3,2"/>
+          <!-- Road network -->
+          <line x1="0" y1="170" x2="480" y2="170" stroke="rgba(244,237,224,0.15)" stroke-width="1.5"/>
+          <line x1="180" y1="0" x2="180" y2="340" stroke="rgba(244,237,224,0.15)" stroke-width="1.5"/>
+          <line x1="0" y1="50" x2="480" y2="220" stroke="rgba(244,237,224,0.08)" stroke-width="1"/>
+          <!-- Scan line animation -->
+          <line id="scanline" x1="0" y1="0" x2="480" y2="0" stroke="rgba(200,116,42,0.4)" stroke-width="1.5">
+            <animate attributeName="y1" from="0" to="340" dur="3s" repeatCount="indefinite"/>
+            <animate attributeName="y2" from="0" to="340" dur="3s" repeatCount="indefinite"/>
+          </line>
+          <!-- Pins -->
+          <circle cx="155" cy="115" r="5" fill="#c8742a"/>
+          <circle cx="155" cy="115" r="12" fill="none" stroke="#c8742a" stroke-width="1" opacity="0.6">
+            <animate attributeName="r" values="8;16;8" dur="2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="240" cy="65" r="3" fill="#2a8f8f"/>
+          <circle cx="370" cy="80" r="3" fill="#378add"/>
+          <!-- Labels -->
+          <text x="63" y="57" fill="rgba(200,116,42,0.8)" font-size="6.5" font-family="JetBrains Mono,monospace">URBAN</text>
+          <text x="203" y="37" fill="rgba(42,143,143,0.8)" font-size="6.5" font-family="JetBrains Mono,monospace">VEGETATION</text>
+          <text x="23" y="147" fill="rgba(99,153,34,0.8)" font-size="6.5" font-family="JetBrains Mono,monospace">AGRICULTURE</text>
+          <text x="340" y="56" fill="rgba(55,138,221,0.8)" font-size="6.5" font-family="JetBrains Mono,monospace">WATER</text>
+          <!-- Coordinates overlay -->
+          <text x="6" y="330" fill="rgba(200,116,42,0.5)" font-size="6" font-family="JetBrains Mono,monospace">34.197°N  72.013°E</text>
+          <text x="380" y="330" fill="rgba(200,116,42,0.5)" font-size="6" font-family="JetBrains Mono,monospace">LULC 2023</text>
+          <!-- Bottom status bar -->
+          <rect x="0" y="316" width="480" height="24" fill="rgba(11,18,32,0.7)"/>
+          <text x="8" y="328" fill="rgba(200,116,42,0.7)" font-size="5.5" font-family="JetBrains Mono,monospace">● PROCESSING  ACC: 91.2%  KAPPA: 0.89  BANDS: 7</text>
+        </svg>
+      </div>
+      <div class="map-card-footer">
+        <div class="map-legend-item"><div class="legend-dot" style="background:#c8742a"></div>Urban</div>
+        <div class="map-legend-item"><div class="legend-dot" style="background:#2a8f8f"></div>Vegetation</div>
+        <div class="map-legend-item"><div class="legend-dot" style="background:#639922"></div>Agriculture</div>
+        <div class="map-legend-item"><div class="legend-dot" style="background:#378add"></div>Water</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ SKILLS ══════════ -->
+<section id="skills" style="background:var(--navy-mid);padding:7rem 0">
+<div class="section">
+  <div class="s-eyebrow reveal">Technical Expertise</div>
+  <h2 class="reveal reveal-delay-1">Skills &amp; <em>Capabilities</em></h2>
+  <p class="s-sub reveal reveal-delay-2">A full-stack geospatial toolkit spanning software, programming, remote sensing, and data science.</p>
+
+  <div class="skills-wrap">
+    <div class="sk-card reveal">
+      <div class="sk-icon">🗺️</div>
+      <div class="sk-name">GIS Platforms</div>
+      <div class="sk-tags">
+        <span class="sk-tag">ArcGIS Pro</span>
+        <span class="sk-tag">QGIS</span>
+        <span class="sk-tag">ArcGIS Online</span>
+        <span class="sk-tag">ArcMap</span>
+        <span class="sk-tag">MapServer</span>
+      </div>
+    </div>
+    <div class="sk-card reveal reveal-delay-1">
+      <div class="sk-icon">🛰️</div>
+      <div class="sk-name">Remote Sensing</div>
+      <div class="sk-tags">
+        <span class="sk-tag">ENVI</span>
+        <span class="sk-tag">Google Earth Engine</span>
+        <span class="sk-tag">Sentinel-1/2/5P</span>
+        <span class="sk-tag">Landsat 8/9</span>
+        <span class="sk-tag">MODIS</span>
+      </div>
+    </div>
+    <div class="sk-card reveal reveal-delay-2">
+      <div class="sk-icon">🐍</div>
+      <div class="sk-name">Programming</div>
+      <div class="sk-tags">
+        <span class="sk-tag">Python</span>
+        <span class="sk-tag">GeoPandas</span>
+        <span class="sk-tag">Rasterio</span>
+        <span class="sk-tag">GDAL</span>
+        <span class="sk-tag">JavaScript</span>
+        <span class="sk-tag">R</span>
+      </div>
+    </div>
+    <div class="sk-card reveal reveal-delay-3">
+      <div class="sk-icon">🗄️</div>
+      <div class="sk-name">Databases</div>
+      <div class="sk-tags">
+        <span class="sk-tag">PostgreSQL</span>
+        <span class="sk-tag">PostGIS</span>
+        <span class="sk-tag">MySQL</span>
+        <span class="sk-tag">Leaflet</span>
+      </div>
+    </div>
+    <div class="sk-card reveal">
+      <div class="sk-icon">📊</div>
+      <div class="sk-name">Visualization</div>
+      <div class="sk-tags">
+        <span class="sk-tag">Power BI</span>
+        <span class="sk-tag">Tableau</span>
+        <span class="sk-tag">Matplotlib</span>
+        <span class="sk-tag">Plotly</span>
+      </div>
+    </div>
+    <div class="sk-card reveal reveal-delay-1">
+      <div class="sk-icon">🧠</div>
+      <div class="sk-name">Spatial Analysis</div>
+      <div class="sk-tags">
+        <span class="sk-tag">LULC Classification</span>
+        <span class="sk-tag">Change Detection</span>
+        <span class="sk-tag">MCDA</span>
+        <span class="sk-tag">Geostatistics</span>
+      </div>
+    </div>
+    <div class="sk-card reveal reveal-delay-2">
+      <div class="sk-icon">🤖</div>
+      <div class="sk-name">AI &amp; Machine Learning</div>
+      <div class="sk-tags">
+        <span class="sk-tag">Random Forest</span>
+        <span class="sk-tag">SVM</span>
+        <span class="sk-tag">Time-Series ML</span>
+        <span class="sk-tag">Deep Learning</span>
+      </div>
+    </div>
+    <div class="sk-card reveal reveal-delay-3">
+      <div class="sk-icon">📡</div>
+      <div class="sk-name">Field Skills</div>
+      <div class="sk-tags">
+        <span class="sk-tag">GPS / GNSS</span>
+        <span class="sk-tag">Ground Truthing</span>
+        <span class="sk-tag">Survey Collection</span>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ PROJECTS ══════════ -->
+<section id="projects" class="section">
+  <div class="s-eyebrow reveal">Portfolio</div>
+  <h2 class="reveal reveal-delay-1">Featured <em>Projects</em></h2>
+  <p class="s-sub reveal reveal-delay-2">Real-world geospatial solutions across urban planning, environmental science, and spatial intelligence.</p>
+
+  <div class="projects-grid">
+
+    <div class="proj-card reveal">
+      <div class="proj-visual pv-urban">
+        <svg viewBox="0 0 400 175" xmlns="http://www.w3.org/2000/svg">
+          <defs><pattern id="g2" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(42,143,143,0.08)" stroke-width="0.5"/></pattern></defs>
+          <rect width="400" height="175" fill="url(#g2)"/>
+          <!-- 2010 urban footprint -->
+          <rect x="60" y="40" width="70" height="55" rx="2" fill="rgba(200,116,42,0.2)" stroke="rgba(200,116,42,0.4)" stroke-width="0.8"/>
+          <!-- 2023 expanded footprint -->
+          <rect x="40" y="25" width="130" height="100" rx="3" fill="none" stroke="rgba(200,116,42,0.7)" stroke-width="1" stroke-dasharray="4,3"/>
+          <!-- Growth arrows -->
+          <path d="M 170 75 L 190 75" stroke="#c8742a" stroke-width="1.5" marker-end="url(#arr)"/>
+          <path d="M 95 25 L 95 10" stroke="#c8742a" stroke-width="1.5"/>
+          <!-- Vegetation loss areas -->
+          <rect x="220" y="30" width="80" height="60" rx="2" fill="rgba(42,143,143,0.15)" stroke="rgba(42,143,143,0.3)" stroke-width="0.8"/>
+          <rect x="300" y="50" width="70" height="80" rx="2" fill="rgba(42,143,143,0.1)" stroke="rgba(42,143,143,0.25)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <!-- Agriculture -->
+          <rect x="30" y="130" width="100" height="30" rx="1" fill="rgba(99,153,34,0.15)" stroke="rgba(99,153,34,0.3)" stroke-width="0.8"/>
+          <text x="65" y="56" fill="rgba(200,116,42,0.7)" font-size="7" font-family="JetBrains Mono,monospace">2010</text>
+          <text x="48" y="130" fill="rgba(200,116,42,0.9)" font-size="7" font-family="JetBrains Mono,monospace">URBAN GROWTH +118%</text>
+          <text x="222" y="46" fill="rgba(42,143,143,0.7)" font-size="6.5" font-family="JetBrains Mono,monospace">VEGETATION</text>
+          <text x="9" y="170" fill="rgba(200,116,42,0.4)" font-size="6" font-family="JetBrains Mono,monospace">MARDAN CITY · KPK · PAKISTAN</text>
+        </svg>
+        <div class="proj-visual-label"></div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-cats">
+          <span class="proj-cat cat-rs">Remote Sensing</span>
+          <span class="proj-cat cat-py">Python</span>
+          <span class="proj-cat cat-gis">Change Detection</span>
+        </div>
+        <div class="proj-title">Urban Sprawl Analysis — Mardan City</div>
+        <p class="proj-desc">Multi-temporal satellite imagery analysis quantifying 10-year urban expansion using supervised classification and post-classification comparison.</p>
+        <a href="https://github.com/Abdul-Haleem-Khan-RS-GIS/GIS-RemoteSensing-Portfolio" target="_blank" class="proj-link">View Repository →</a>
+      </div>
+    </div>
+
+    <div class="proj-card reveal reveal-delay-1">
+      <div class="proj-visual pv-solar">
+        <svg viewBox="0 0 400 175" xmlns="http://www.w3.org/2000/svg">
+          <defs><pattern id="g3" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(200,116,42,0.06)" stroke-width="0.5"/></pattern></defs>
+          <rect width="400" height="175" fill="url(#g3)"/>
+          <!-- Suitability layers -->
+          <rect x="20" y="20" width="360" height="135" rx="2" fill="none" stroke="rgba(200,116,42,0.1)" stroke-width="0.5"/>
+          <!-- High suitability zones -->
+          <ellipse cx="200" cy="85" rx="120" ry="65" fill="rgba(200,116,42,0.08)" stroke="rgba(200,116,42,0.2)" stroke-width="0.8"/>
+          <ellipse cx="200" cy="85" rx="80" ry="45" fill="rgba(200,116,42,0.12)" stroke="rgba(200,116,42,0.3)" stroke-width="0.8"/>
+          <ellipse cx="200" cy="85" rx="45" ry="28" fill="rgba(200,116,42,0.2)" stroke="rgba(200,116,42,0.5)" stroke-width="1"/>
+          <ellipse cx="200" cy="85" rx="22" ry="14" fill="rgba(200,116,42,0.4)" stroke="rgba(200,116,42,0.8)" stroke-width="1"/>
+          <!-- Site markers -->
+          <circle cx="200" cy="85" r="4" fill="#c8742a"/>
+          <circle cx="280" cy="55" r="3" fill="#c8742a" opacity="0.6"/>
+          <circle cx="130" cy="110" r="3" fill="#c8742a" opacity="0.5"/>
+          <!-- Solar panels symbol -->
+          <text x="175" y="155" fill="rgba(200,116,42,0.6)" font-size="7" font-family="JetBrains Mono,monospace">HIGH SUITABILITY ZONE</text>
+          <text x="10" y="170" fill="rgba(200,116,42,0.4)" font-size="6" font-family="JetBrains Mono,monospace">MCDA · SLOPE · ASPECT · RADIATION · INFRASTRUCTURE</text>
+        </svg>
+      </div>
+      <div class="proj-body">
+        <div class="proj-cats">
+          <span class="proj-cat cat-gis">MCDA</span>
+          <span class="proj-cat cat-py">Python</span>
+          <span class="proj-cat cat-gis">Suitability</span>
+        </div>
+        <div class="proj-title">Solar Power Plant Site Selection</div>
+        <p class="proj-desc">Multi-Criteria Decision Analysis identifying optimal renewable energy locations by evaluating slope, solar radiation, land cover, and road proximity.</p>
+        <a href="https://github.com/Abdul-Haleem-Khan-RS-GIS/GIS-RemoteSensing-Portfolio" target="_blank" class="proj-link">View Repository →</a>
+      </div>
+    </div>
+
+    <div class="proj-card reveal reveal-delay-2">
+      <div class="proj-visual pv-thermal">
+        <svg viewBox="0 0 400 175" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="heat1" cx="50%" cy="50%">
+              <stop offset="0%" stop-color="rgba(220,50,30,0.7)"/>
+              <stop offset="50%" stop-color="rgba(220,100,30,0.3)"/>
+              <stop offset="100%" stop-color="transparent"/>
+            </radialGradient>
+            <radialGradient id="heat2" cx="50%" cy="50%">
+              <stop offset="0%" stop-color="rgba(200,116,42,0.6)"/>
+              <stop offset="100%" stop-color="transparent"/>
+            </radialGradient>
+          </defs>
+          <rect width="400" height="175" fill="transparent"/>
+          <rect x="20" y="20" width="360" height="135" rx="2" fill="none" stroke="rgba(220,50,30,0.1)" stroke-width="0.5"/>
+          <!-- Heat islands -->
+          <ellipse cx="200" cy="88" rx="100" ry="60" fill="url(#heat1)"/>
+          <ellipse cx="130" cy="60" rx="55" ry="38" fill="url(#heat2)" opacity="0.8"/>
+          <ellipse cx="290" cy="110" rx="50" ry="32" fill="url(#heat2)" opacity="0.7"/>
+          <!-- Isotherm lines -->
+          <ellipse cx="200" cy="88" rx="100" ry="60" fill="none" stroke="rgba(220,80,30,0.3)" stroke-width="0.7"/>
+          <ellipse cx="200" cy="88" rx="75" ry="45" fill="none" stroke="rgba(220,80,30,0.4)" stroke-width="0.7"/>
+          <ellipse cx="200" cy="88" rx="50" ry="30" fill="none" stroke="rgba(220,80,30,0.5)" stroke-width="0.8"/>
+          <!-- Temp labels -->
+          <text x="186" y="92" fill="rgba(240,100,60,0.9)" font-size="8" font-family="JetBrains Mono,monospace">42°C</text>
+          <text x="115" y="64" fill="rgba(200,116,42,0.8)" font-size="7" font-family="JetBrains Mono,monospace">38°C</text>
+          <text x="275" y="114" fill="rgba(200,116,42,0.7)" font-size="7" font-family="JetBrains Mono,monospace">37°C</text>
+          <text x="10" y="170" fill="rgba(220,80,30,0.4)" font-size="6" font-family="JetBrains Mono,monospace">LST · LANDSAT 8 THERMAL BAND 10 · NEW YORK CITY</text>
+        </svg>
+      </div>
+      <div class="proj-body">
+        <div class="proj-cats">
+          <span class="proj-cat cat-rs">Landsat 8</span>
+          <span class="proj-cat cat-rs">Thermal</span>
+          <span class="proj-cat cat-py">Python</span>
+        </div>
+        <div class="proj-title">Land Surface Temperature — New York City</div>
+        <p class="proj-desc">Urban Heat Island mapping using Landsat 8 thermal infrared bands to identify hotspot zones and temperature anomalies across NYC boroughs.</p>
+        <a href="https://github.com/Abdul-Haleem-Khan-RS-GIS/GIS-RemoteSensing-Portfolio" target="_blank" class="proj-link">View Repository →</a>
+      </div>
+    </div>
+
+    <div class="proj-card reveal">
+      <div class="proj-visual pv-carbon">
+        <svg viewBox="0 0 400 175" xmlns="http://www.w3.org/2000/svg">
+          <!-- CO2 concentration heatmap -->
+          <rect width="400" height="175" fill="transparent"/>
+          <defs>
+            <radialGradient id="co2" cx="40%" cy="45%">
+              <stop offset="0%" stop-color="rgba(100,100,255,0.5)"/>
+              <stop offset="60%" stop-color="rgba(60,80,200,0.2)"/>
+              <stop offset="100%" stop-color="transparent"/>
+            </radialGradient>
+          </defs>
+          <ellipse cx="160" cy="80" rx="140" ry="70" fill="url(#co2)"/>
+          <!-- Time series graph -->
+          <polyline points="30,140 75,125 120,130 165,110 210,118 255,95 300,100 345,82 370,75"
+            fill="none" stroke="rgba(100,140,255,0.7)" stroke-width="1.5"/>
+          <polyline points="30,140 75,125 120,130 165,110 210,118 255,95 300,100 345,82 370,75"
+            fill="rgba(60,80,200,0.05)" stroke="none"/>
+          <!-- Data points -->
+          <circle cx="30" cy="140" r="2.5" fill="rgba(100,140,255,0.8)"/>
+          <circle cx="165" cy="110" r="2.5" fill="rgba(100,140,255,0.8)"/>
+          <circle cx="255" cy="95" r="2.5" fill="rgba(100,140,255,0.8)"/>
+          <circle cx="370" cy="75" r="3" fill="#6488ff"/>
+          <!-- Sentinel-5P label -->
+          <text x="280" y="42" fill="rgba(100,140,255,0.7)" font-size="7" font-family="JetBrains Mono,monospace">CO₂ ppb</text>
+          <text x="280" y="56" fill="rgba(100,140,255,0.9)" font-size="10" font-family="JetBrains Mono,monospace">415.2</text>
+          <text x="10" y="170" fill="rgba(100,140,255,0.4)" font-size="6" font-family="JetBrains Mono,monospace">SENTINEL-5P · ML TIME-SERIES · CO₂ MONITORING</text>
+        </svg>
+      </div>
+      <div class="proj-body">
+        <div class="proj-cats">
+          <span class="proj-cat cat-ai">AI / ML</span>
+          <span class="proj-cat cat-rs">Sentinel-5P</span>
+          <span class="proj-cat cat-py">Python</span>
+        </div>
+        <div class="proj-title">Carbon Emission Monitoring with AI</div>
+        <p class="proj-desc">Tracking CO₂ concentrations from Sentinel-5P satellite data using machine learning time-series models to detect emission anomalies and patterns.</p>
+        <a href="https://github.com/Abdul-Haleem-Khan-RS-GIS/GIS-RemoteSensing-Portfolio" target="_blank" class="proj-link">View Repository →</a>
+      </div>
+    </div>
+
+    <div class="proj-card reveal reveal-delay-1">
+      <div class="proj-visual pv-cadastral">
+        <svg viewBox="0 0 400 175" xmlns="http://www.w3.org/2000/svg">
+          <!-- Land parcels grid -->
+          <defs><pattern id="g4" width="35" height="28" patternUnits="userSpaceOnUse"><rect width="35" height="28" fill="none" stroke="rgba(42,143,143,0.2)" stroke-width="0.8"/></pattern></defs>
+          <rect x="30" y="20" width="340" height="135" fill="url(#g4)" stroke="rgba(42,143,143,0.3)" stroke-width="0.8"/>
+          <!-- Highlighted parcels -->
+          <rect x="30" y="20" width="70" height="28" fill="rgba(200,116,42,0.15)" stroke="rgba(200,116,42,0.5)" stroke-width="0.8"/>
+          <rect x="135" y="48" width="70" height="28" fill="rgba(200,116,42,0.15)" stroke="rgba(200,116,42,0.5)" stroke-width="0.8"/>
+          <rect x="240" y="76" width="70" height="28" fill="rgba(200,116,42,0.15)" stroke="rgba(200,116,42,0.5)" stroke-width="0.8"/>
+          <rect x="65" y="104" width="105" height="28" fill="rgba(42,143,143,0.1)" stroke="rgba(42,143,143,0.4)" stroke-width="0.8"/>
+          <!-- Parcel IDs -->
+          <text x="45" y="36" fill="rgba(200,116,42,0.7)" font-size="6" font-family="JetBrains Mono,monospace">PKB-0042</text>
+          <text x="148" y="64" fill="rgba(200,116,42,0.7)" font-size="6" font-family="JetBrains Mono,monospace">PKB-0117</text>
+          <text x="252" y="92" fill="rgba(200,116,42,0.7)" font-size="6" font-family="JetBrains Mono,monospace">PKB-0238</text>
+          <text x="10" y="170" fill="rgba(42,143,143,0.4)" font-size="6" font-family="JetBrains Mono,monospace">CADASTRAL MAPPING · PUNJAB PROVINCE · PULSE PROJECT</text>
+        </svg>
+      </div>
+      <div class="proj-body">
+        <div class="proj-cats">
+          <span class="proj-cat cat-gis">Cadastral</span>
+          <span class="proj-cat cat-rs">Hi-Res Imagery</span>
+          <span class="proj-cat cat-gis">ArcGIS</span>
+        </div>
+        <div class="proj-title">Cadastral Mapping — Punjab (PULSE)</div>
+        <p class="proj-desc">Digitizing land parcels from high-resolution aerial imagery to modernize government land records, enable tax mapping, and resolve boundary disputes.</p>
+        <a href="https://github.com/Abdul-Haleem-Khan-RS-GIS/GIS-RemoteSensing-Portfolio" target="_blank" class="proj-link">View Repository →</a>
+      </div>
+    </div>
+
+    <div class="proj-card reveal reveal-delay-2">
+      <div class="proj-visual pv-master">
+        <svg viewBox="0 0 400 175" xmlns="http://www.w3.org/2000/svg">
+          <!-- City zones layout -->
+          <rect x="20" y="20" width="360" height="135" rx="2" fill="none" stroke="rgba(200,116,42,0.1)" stroke-width="0.5"/>
+          <!-- Zoning blocks -->
+          <rect x="30" y="30" width="80" height="50" rx="1" fill="rgba(200,116,42,0.12)" stroke="rgba(200,116,42,0.3)" stroke-width="0.8"/>
+          <rect x="120" y="30" width="60" height="50" rx="1" fill="rgba(99,153,34,0.12)" stroke="rgba(99,153,34,0.3)" stroke-width="0.8"/>
+          <rect x="190" y="30" width="90" height="50" rx="1" fill="rgba(42,143,143,0.1)" stroke="rgba(42,143,143,0.3)" stroke-width="0.8"/>
+          <rect x="30" y="90" width="120" height="50" rx="1" fill="rgba(55,138,221,0.1)" stroke="rgba(55,138,221,0.25)" stroke-width="0.8"/>
+          <rect x="160" y="90" width="120" height="50" rx="1" fill="rgba(200,116,42,0.08)" stroke="rgba(200,116,42,0.2)" stroke-width="0.8"/>
+          <!-- Road network -->
+          <rect x="110" y="20" width="8" height="135" rx="1" fill="rgba(244,237,224,0.08)"/>
+          <rect x="20" y="82" width="360" height="6" rx="1" fill="rgba(244,237,224,0.06)"/>
+          <!-- Zone labels -->
+          <text x="42" y="56" fill="rgba(200,116,42,0.7)" font-size="6.5" font-family="JetBrains Mono,monospace">RESIDENTIAL</text>
+          <text x="124" y="56" fill="rgba(99,153,34,0.7)" font-size="6.5" font-family="JetBrains Mono,monospace">AGRI</text>
+          <text x="200" y="56" fill="rgba(42,143,143,0.7)" font-size="6.5" font-family="JetBrains Mono,monospace">COMMERCIAL</text>
+          <text x="42" y="116" fill="rgba(55,138,221,0.7)" font-size="6.5" font-family="JetBrains Mono,monospace">INDUSTRIAL</text>
+          <text x="165" y="116" fill="rgba(200,116,42,0.5)" font-size="6.5" font-family="JetBrains Mono,monospace">GREEN SPACE</text>
+          <text x="10" y="170" fill="rgba(200,116,42,0.4)" font-size="6" font-family="JetBrains Mono,monospace">MASTER PLAN · PUNJAB (PICIP) + KPK (UPU) · PAKISTAN</text>
+        </svg>
+      </div>
+      <div class="proj-body">
+        <div class="proj-cats">
+          <span class="proj-cat cat-gis">Urban Planning</span>
+          <span class="proj-cat cat-gis">Land Use</span>
+        </div>
+        <div class="proj-title">Master Planning — Punjab &amp; KPK (PICIP / UPU)</div>
+        <p class="proj-desc">Strategic spatial planning for multiple cities covering zoning, land-use classification, transport analysis, and growth modeling for two provincial governments.</p>
+        <a href="https://github.com/Abdul-Haleem-Khan-RS-GIS/GIS-RemoteSensing-Portfolio" target="_blank" class="proj-link">View Repository →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ EXPERIENCE ══════════ -->
+<section id="experience" style="background:var(--navy-mid);padding:7rem 0">
+<div class="section">
+  <div class="s-eyebrow reveal">Career</div>
+  <h2 class="reveal reveal-delay-1">Work <em>Experience</em></h2>
+  <p class="s-sub reveal reveal-delay-2">Five years delivering geospatial solutions across government institutions, engineering firms, and international freelance projects.</p>
+
+  <div class="exp-grid">
+    <div>
+      <div class="timeline reveal">
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-date">June 2024 – Present</div>
+          <div class="tl-role">GIS Engineer</div>
+          <div class="tl-org">Municipality of Uyun Al Jawa · Saudi Arabia</div>
+          <ul class="tl-pts">
+            <li class="tl-pt">Geospatial analysis for urban and infrastructure planning</li>
+            <li class="tl-pt">Managing and maintaining enterprise GIS databases</li>
+            <li class="tl-pt">Automating spatial workflows with Python &amp; GDAL</li>
+            <li class="tl-pt">Professional maps and dashboards for decision-makers</li>
+          </ul>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-date">April 2024 – May 2024</div>
+          <div class="tl-role">Junior GIS Expert</div>
+          <div class="tl-org">NESPAK · Pakistan</div>
+          <ul class="tl-pts">
+            <li class="tl-pt">Spatial modeling for large-scale engineering projects</li>
+            <li class="tl-pt">Geostatistical analysis and dataset management</li>
+          </ul>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-date">August 2022 – March 2024</div>
+          <div class="tl-role">GIS Analyst</div>
+          <div class="tl-org">Shehersaaz · Lahore, Pakistan</div>
+          <ul class="tl-pts">
+            <li class="tl-pt">Land-use planning and spatial risk assessment</li>
+            <li class="tl-pt">Master planning for Punjab &amp; KPK governments</li>
+            <li class="tl-pt">GIS-based urban development solutions</li>
+          </ul>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-date">Ongoing</div>
+          <div class="tl-role">Freelance GIS Analyst</div>
+          <div class="tl-org">Upwork · International / Remote</div>
+          <ul class="tl-pts">
+            <li class="tl-pt">GIS and remote sensing projects for global clients</li>
+            <li class="tl-pt">Dashboards, suitability models, Python automation</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="edu-card reveal">
+        <div class="edu-tag">Education</div>
+        <div class="edu-degree">MSc Geographic Information Systems</div>
+        <div class="edu-uni">University of the Punjab</div>
+        <div class="edu-year">2020 – 2022 · Lahore, Pakistan</div>
+      </div>
+
+      <!-- Stats panel -->
+      <div class="edu-card reveal reveal-delay-1" style="margin-top:1.5rem">
+        <div class="edu-tag">By the Numbers</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:0.8rem">
+          <div>
+            <div style="font-family:var(--f-display);font-weight:700;font-size:2rem;color:var(--copper);line-height:1">
+              <span class="counter" data-target="3">0</span>+
+            </div>
+            <div style="font-family:var(--f-mono);font-size:0.62rem;letter-spacing:0.1em;color:var(--sand);text-transform:uppercase;margin-top:0.3rem">Years Active</div>
+          </div>
+          <div>
+            <div style="font-family:var(--f-display);font-weight:700;font-size:2rem;color:var(--copper);line-height:1">
+              <span class="counter" data-target="30">0</span>+
+            </div>
+            <div style="font-family:var(--f-mono);font-size:0.62rem;letter-spacing:0.1em;color:var(--sand);text-transform:uppercase;margin-top:0.3rem">Major Projects</div>
+          </div>
+          <div>
+            <div style="font-family:var(--f-display);font-weight:700;font-size:2rem;color:var(--teal-lt);line-height:1">15</div>
+            <div style="font-family:var(--f-mono);font-size:0.62rem;letter-spacing:0.1em;color:var(--sand);text-transform:uppercase;margin-top:0.3rem">Organizations</div>
+          </div>
+          <div>
+            <div style="font-family:var(--f-display);font-weight:700;font-size:2rem;color:var(--teal-lt);line-height:1">10</div>
+            <div style="font-family:var(--f-mono);font-size:0.62rem;letter-spacing:0.1em;color:var(--sand);text-transform:uppercase;margin-top:0.3rem">Countries Served</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ CONTACT ══════════ -->
+<section id="contact" class="section-full full-w" style="background:radial-gradient(ellipse 50% 60% at 10% 50%, rgba(200,116,42,0.06) 0%,transparent 70%), var(--navy);border-top:1px solid var(--border)">
+<div class="section">
+  <div class="contact-grid">
+    <div>
+      <div class="s-eyebrow reveal">Let's Connect</div>
+      <div class="contact-big reveal reveal-delay-1">
+        Let's Build<br>Something<em>Remarkable.</em>
+      </div>
+      <p class="s-sub reveal reveal-delay-2" style="margin-bottom:0">Available for GIS consulting, remote sensing analysis, spatial data science, and international freelance projects.</p>
+
+      <div class="c-links reveal reveal-delay-3">
+        <a href="mailto:abdulhaleemk03@gmail.com" class="c-link">
+          <div class="c-link-ico">✉</div>
+          abdulhaleemk03@gmail.com
+        </a>
+        <a href="https://www.linkedin.com/in/abdul-haleem-khan-rs-gis-specialist/" target="_blank" class="c-link">
+          <div class="c-link-ico">in</div>
+          linkedin.com/in/abdul-haleem-khan-rs-gis-specialist
+        </a>
+        <a href="https://github.com/Abdul-Haleem-Khan-RS-GIS" target="_blank" class="c-link">
+          <div class="c-link-ico">gh</div>
+          github.com/Abdul-Haleem-Khan-RS-GIS
+        </a>
+        <a class="c-link">
+          <div class="c-link-ico">📍</div>
+          Uyun Al Jawa, Al-Qassim, Saudi Arabia
+        </a>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <div class="form-row">
+        <label class="form-label">Your Name</label>
+        <input type="text" placeholder="John Smith"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Email Address</label>
+        <input type="email" placeholder="john@company.com"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Project Details</label>
+        <textarea placeholder="Describe your GIS project or spatial data challenge..."></textarea>
+      </div>
+      <a href="mailto:abdulhaleemk03@gmail.com" class="btn-copper" style="width:100%;justify-content:center;margin-top:0.5rem">
+        Send Message →
+      </a>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <div class="footer-txt">© 2025 Abdul Haleem Khan · GIS &amp; Remote Sensing Specialist</div>
+  <div class="footer-ping">
+    <div class="ping-dot"></div>
+    Open to Opportunities
+  </div>
+  <div class="footer-txt">Spatial Nexus</div>
+</footer>
+
+<script>
+// Custom cursor
+const dot=document.getElementById('cdot'),ring=document.getElementById('cring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);}
+animRing();
+document.querySelectorAll('a,button,.proj-card,.sk-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ring.style.width='52px';ring.style.height='52px';ring.style.borderColor='var(--copper-lt)';});
+  el.addEventListener('mouseleave',()=>{ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='var(--copper)';});
+});
+
+// Scroll nav
+window.addEventListener('scroll',()=>{
+  document.getElementById('mainnav').classList.toggle('scrolled',window.scrollY>60);
+});
+
+// Scroll reveal
+const reveals=document.querySelectorAll('.reveal');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+},{threshold:0.12});
+reveals.forEach(el=>obs.observe(el));
+
+// Counter animation
+function animCounter(el,target,duration){
+  let start=null;
+  function step(ts){
+    if(!start)start=ts;
+    const pct=Math.min((ts-start)/duration,1);
+    el.textContent=Math.floor(pct*target);
+    if(pct<1)requestAnimationFrame(step);
+    else el.textContent=target;
+  }
+  requestAnimationFrame(step);
+}
+const cobs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const target=+e.target.dataset.target;
+      animCounter(e.target,target,1200);
+      cobs.unobserve(e.target);
+    }
+  });
+},{threshold:0.5});
+document.querySelectorAll('.counter').forEach(el=>cobs.observe(el));
+</script>
+</body>
+</html>
