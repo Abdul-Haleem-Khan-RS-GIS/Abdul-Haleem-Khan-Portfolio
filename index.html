@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Abdul Haleem Khan | GIS & Remote Sensing Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    /* === GREEN + WHITE PROFESSIONAL PALETTE === */
+    --bg:            #f8fcf9;
+    --bg-alt:        #eef7f1;
+    --surface:       #ffffff;
+    --surface-2:     #f0f9f3;
+    --card:          #ffffff;
+    --border:        #c8e6d0;
+    --border-strong: #8ec9a0;
+
+    /* Greens */
+    --green-900:     #0a2e18;
+    --green-800:     #0f3d22;
+    --green-700:     #155d30;
+    --green-600:     #1e7e42;
+    --green-500:     #26a055;
+    --green-400:     #38c068;
+    --green-300:     #6dd98a;
+    --green-200:     #a8edbc;
+    --green-100:     #d4f5df;
+    --green-50:      #eafaf0;
+
+    --accent:        #1e7e42;
+    --accent-light:  #26a055;
+    --accent-glow:   rgba(30,126,66,0.12);
+    --accent-subtle: rgba(30,126,66,0.06);
+
+    /* Text */
+    --text-primary:  #0a2e18;
+    --text-secondary:#2d6b45;
+    --text-muted:    #5a9970;
+    --text-faint:    #8abfa0;
+    --white:         #ffffff;
+
+    /* Highlights */
+    --gold:          #c8860a;
+    --gold-light:    #f5c842;
+    --blue:          #1a6eb5;
+    --red:           #c0392b;
+
+    /* Typography */
+    --font-serif:    'Instrument Serif', Georgia, serif;
+    --font-sans:     'Plus Jakarta Sans', sans-serif;
+    --font-mono:     'JetBrains Mono', monospace;
+
+    /* Radius */
+    --r-sm: 6px;
+    --r-md: 12px;
+    --r-lg: 20px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-weight: 400;
+    overflow-x: hidden;
+    line-height: 1.7;
+  }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-alt); }
+  ::-webkit-scrollbar-thumb { background: var(--green-300); border-radius: 3px; }
+
+  /* ─── SELECTION ─── */
+  ::selection { background: var(--green-200); color: var(--green-900); }
+
+  /* ══════════════════════════════════════
+     NAV
+  ══════════════════════════════════════ */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 3rem;
+    height: 68px;
+    background: rgba(248,252,249,0.92);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 20px rgba(30,126,66,0.06);
+  }
+
+  .nav-logo {
+    font-family: var(--font-mono);
+    color: var(--accent);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .nav-links { display: flex; gap: 0.25rem; }
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-family: var(--font-sans);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 0.9rem;
+    border-radius: var(--r-sm);
+    transition: all 0.2s;
+  }
+  .nav-links a:hover {
+    background: var(--accent-subtle);
+    color: var(--accent);
+  }
+
+  /* ══════════════════════════════════════
+     HERO
+  ══════════════════════════════════════ */
+  #hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 8rem 3rem 5rem;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 70% 60% at 80% 20%, var(--green-50) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 80% at 10% 80%, var(--green-100) 0%, transparent 50%),
+      var(--bg);
+  }
+
+  /* Dot grid pattern */
+  .hero-dots {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(circle, var(--green-200) 1px, transparent 1px);
+    background-size: 32px 32px;
+    opacity: 0.5;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 80%);
+  }
+
+  /* Floating orb */
+  .hero-orb {
+    position: absolute;
+    right: 5%; top: 15%;
+    width: 520px; height: 520px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%,
+      var(--green-200) 0%,
+      var(--green-100) 30%,
+      transparent 70%);
+    opacity: 0.6;
+    filter: blur(60px);
+    animation: orb-float 8s ease-in-out infinite;
+  }
+
+  @keyframes orb-float {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+    50% { transform: translateY(-30px) scale(1.04); opacity: 0.8; }
+  }
+
+  /* Decorative ring */
+  .hero-ring {
+    position: absolute;
+    right: 8%; top: 10%;
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    border: 1.5px solid var(--green-200);
+    opacity: 0.7;
+    animation: ring-spin 25s linear infinite;
+  }
+  .hero-ring::after {
+    content: '';
+    position: absolute;
+    top: 20px; right: 20px; bottom: 20px; left: 20px;
+    border-radius: 50%;
+    border: 1px dashed var(--green-300);
+    opacity: 0.5;
+  }
+  @keyframes ring-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .available-badge {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    background: var(--white);
+    border: 1.5px solid var(--green-300);
+    border-radius: 100px;
+    padding: 0.45rem 1.1rem 0.45rem 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 12px var(--accent-glow);
+  }
+  .badge-dot {
+    width: 7px; height: 7px;
+    background: var(--green-400);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px var(--green-100);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 3px var(--green-100); }
+    50% { box-shadow: 0 0 0 5px var(--green-200); }
+  }
+
+  .hero-tag {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .hero-tag::before {
+    content: '';
+    width: 36px; height: 2px;
+    background: linear-gradient(to right, var(--accent), var(--green-300));
+    border-radius: 2px;
+  }
+
+  h1 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(3.5rem, 7.5vw, 7.5rem);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.8rem;
+  }
+  h1 .name-first {
+    color: var(--text-primary);
+    display: block;
+  }
+  h1 .name-last {
+    color: transparent;
+    -webkit-text-stroke: 2px var(--accent);
+    display: block;
+    font-style: italic;
+  }
+
+  .hero-desc {
+    max-width: 500px;
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    font-weight: 400;
+    margin-bottom: 2.5rem;
+    line-height: 1.75;
+  }
+
+  .hero-pills {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    margin-bottom: 2.8rem;
+  }
+  .pill {
+    font-family: var(--font-sans);
+    font-size: 0.76rem;
+    font-weight: 500;
+    padding: 0.38rem 0.9rem;
+    border: 1.5px solid var(--border);
+    border-radius: 100px;
+    color: var(--text-secondary);
+    background: var(--white);
+    transition: all 0.2s;
+    cursor: default;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .pill:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--green-50);
+    box-shadow: 0 2px 10px var(--accent-glow);
+    transform: translateY(-1px);
+  }
+
+  .hero-ctas { display: flex; gap: 0.9rem; flex-wrap: wrap; }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    background: var(--accent);
+    color: var(--white);
+    text-decoration: none;
+    padding: 0.85rem 1.8rem;
+    border-radius: var(--r-sm);
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: all 0.25s;
+    box-shadow: 0 4px 20px rgba(30,126,66,0.3);
+  }
+  .btn-primary:hover {
+    background: var(--green-700);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(30,126,66,0.4);
+  }
+
+  .btn-outline {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    border: 1.5px solid var(--border-strong);
+    color: var(--text-primary);
+    background: var(--white);
+    text-decoration: none;
+    padding: 0.85rem 1.8rem;
+    border-radius: var(--r-sm);
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.25s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .btn-outline:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--green-50);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--accent-glow);
+  }
+
+  .hero-stats {
+    display: flex; gap: 3rem;
+    margin-top: 4rem;
+    padding-top: 2.5rem;
+    border-top: 1.5px solid var(--border);
+  }
+  .stat-item { display: flex; flex-direction: column; }
+  .stat-num {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 2.8rem;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 0.4rem;
+  }
+
+  /* ══════════════════════════════════════
+     SECTIONS COMMON
+  ══════════════════════════════════════ */
+  section {
+    padding: 6rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.8rem;
+  }
+  .section-label::before {
+    content: '';
+    width: 24px; height: 2px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  h2 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.6rem;
+    line-height: 1.05;
+    color: var(--text-primary);
+  }
+
+  .section-sub {
+    color: var(--text-muted);
+    max-width: 480px;
+    margin-bottom: 3.5rem;
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  /* ══════════════════════════════════════
+     SKILLS GRID
+  ══════════════════════════════════════ */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5px;
+    background: var(--border);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.06);
+  }
+
+  .skill-card {
+    background: var(--white);
+    padding: 2rem;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .skill-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(to right, var(--accent), var(--green-300));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .skill-card:hover {
+    background: var(--green-50);
+  }
+  .skill-card:hover::before { transform: scaleX(1); }
+
+  .skill-icon {
+    font-size: 1.6rem;
+    margin-bottom: 0.9rem;
+  }
+  .skill-title {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 0.92rem;
+    margin-bottom: 0.8rem;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+  .skill-items {
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+    color: var(--text-muted);
+    line-height: 2.2;
+    letter-spacing: 0.02em;
+  }
+  .skill-items span {
+    display: inline-block;
+    background: var(--green-50);
+    border: 1px solid var(--green-200);
+    padding: 0.15rem 0.55rem;
+    border-radius: 4px;
+    margin: 0.15rem 0.2rem 0.15rem 0;
+    color: var(--accent);
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .skill-card:hover .skill-items span {
+    background: var(--white);
+    border-color: var(--green-300);
+  }
+
+  /* ══════════════════════════════════════
+     PROJECTS
+  ══════════════════════════════════════ */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .project-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+  .project-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 20px 60px rgba(30,126,66,0.14);
+  }
+
+  .project-map {
+    height: 155px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.8rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-map-urban   { background: linear-gradient(135deg, #e8f5ee 0%, #c8e6d8 50%, #d4f0e0 100%); }
+  .project-map-solar   { background: linear-gradient(135deg, #fef9e7 0%, #fdf3c0 50%, #fef5d0 100%); }
+  .project-map-lst     { background: linear-gradient(135deg, #fef0ee 0%, #faddd9 50%, #fce8e5 100%); }
+  .project-map-carbon  { background: linear-gradient(135deg, #eef2fb 0%, #d9e4f8 50%, #e4ebfb 100%); }
+  .project-map-cadastral { background: linear-gradient(135deg, #eef7f1 0%, #d4eddf 50%, #dff2e8 100%); }
+  .project-map-master  { background: linear-gradient(135deg, #f5f5ec 0%, #e8e8cc 50%, #efefd8 100%); }
+
+  .map-grid-overlay {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(30,126,66,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(30,126,66,0.06) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .project-body { padding: 1.6rem; }
+
+  .project-tags {
+    display: flex; flex-wrap: wrap; gap: 0.4rem;
+    margin-bottom: 0.9rem;
+  }
+  .project-tag {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    padding: 0.22rem 0.65rem;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .tag-rs  { background: var(--green-50);  color: var(--accent);  border: 1px solid var(--green-200); }
+  .tag-gee { background: #eef3fd; color: #2563b4; border: 1px solid #c3d6f9; }
+  .tag-py  { background: #fffbeb; color: var(--gold); border: 1px solid #fde68a; }
+  .tag-ai  { background: #fef2f0; color: var(--red); border: 1px solid #fbc9c2; }
+  .tag-gis { background: #f3effe; color: #7c3aed; border: 1px solid #ddd5fd; }
+
+  .project-title {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 1.02rem;
+    margin-bottom: 0.55rem;
+    color: var(--text-primary);
+    line-height: 1.35;
+  }
+
+  .project-desc {
+    color: var(--text-muted);
+    font-size: 0.86rem;
+    line-height: 1.65;
+    margin-bottom: 1.3rem;
+  }
+
+  .project-link {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    transition: all 0.2s;
+    padding: 0.5rem 1rem;
+    border: 1.5px solid var(--green-200);
+    border-radius: var(--r-sm);
+    background: var(--green-50);
+  }
+  .project-link:hover {
+    background: var(--accent);
+    color: var(--white);
+    border-color: var(--accent);
+    gap: 0.7rem;
+  }
+
+  /* ══════════════════════════════════════
+     EXPERIENCE / TIMELINE
+  ══════════════════════════════════════ */
+  .timeline {
+    position: relative;
+    padding-left: 2.5rem;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 8px; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent) 0%, var(--green-200) 80%, transparent 100%);
+    border-radius: 2px;
+  }
+
+  .timeline-item {
+    position: relative;
+    padding: 0 0 3rem 2rem;
+  }
+  .timeline-dot {
+    position: absolute;
+    left: -2.5rem;
+    top: 4px;
+    width: 12px; height: 12px;
+    background: var(--white);
+    border: 2.5px solid var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px var(--green-100), 0 0 20px var(--accent-glow);
+    transform: translateX(-5px);
+  }
+
+  .timeline-date {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.45rem;
+    display: inline-flex;
+    background: var(--green-50);
+    padding: 0.2rem 0.7rem;
+    border-radius: 100px;
+    border: 1px solid var(--green-200);
+  }
+  .timeline-role {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 1.12rem;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+    margin-top: 0.6rem;
+  }
+  .timeline-company {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.73rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.9rem;
+  }
+  .timeline-points {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .timeline-points li {
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    display: flex; gap: 0.8rem;
+    align-items: flex-start;
+    line-height: 1.6;
+  }
+  .timeline-points li::before {
+    content: '→';
+    color: var(--green-400);
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    margin-top: 0.15rem;
+    font-weight: 700;
+  }
+
+  /* ══════════════════════════════════════
+     EDUCATION
+  ══════════════════════════════════════ */
+  .edu-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 2.2rem;
+    display: flex; gap: 1.8rem; align-items: flex-start;
+    max-width: 580px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .edu-card::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, var(--accent), var(--green-300));
+    border-radius: 4px 0 0 4px;
+  }
+  .edu-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 8px 40px rgba(30,126,66,0.12);
+    transform: translateY(-3px);
+  }
+  .edu-icon {
+    font-size: 2.2rem;
+    flex-shrink: 0;
+    width: 52px; height: 52px;
+    background: var(--green-50);
+    border: 1.5px solid var(--green-200);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .edu-degree {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 1.08rem;
+    margin-bottom: 0.35rem;
+    color: var(--text-primary);
+  }
+  .edu-uni {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+  .edu-year {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+
+  /* ══════════════════════════════════════
+     CONTACT
+  ══════════════════════════════════════ */
+  #contact {
+    background:
+      radial-gradient(ellipse 60% 80% at 0% 100%, var(--green-50) 0%, transparent 60%),
+      var(--bg-alt);
+    border-top: 1.5px solid var(--border);
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .contact-info h2 { margin-bottom: 1rem; }
+
+  .contact-links {
+    display: flex; flex-direction: column; gap: 0.8rem;
+    margin-top: 2rem;
+  }
+
+  .contact-link {
+    display: flex; align-items: center; gap: 1rem;
+    color: var(--text-secondary); text-decoration: none;
+    font-family: var(--font-sans);
+    font-size: 0.84rem;
+    font-weight: 500;
+    padding: 0.8rem 1rem;
+    border-radius: var(--r-md);
+    border: 1.5px solid transparent;
+    transition: all 0.25s;
+  }
+  .contact-link:hover {
+    background: var(--white);
+    border-color: var(--border);
+    color: var(--accent);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    transform: translateX(4px);
+  }
+  .contact-link-icon {
+    width: 40px; height: 40px;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    transition: all 0.25s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .contact-link:hover .contact-link-icon {
+    background: var(--green-50);
+    border-color: var(--green-300);
+  }
+
+  .contact-form {
+    display: flex; flex-direction: column; gap: 1.1rem;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 2rem;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.06);
+  }
+  .contact-form h3 {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .form-field { display: flex; flex-direction: column; gap: 0.4rem; }
+  .form-label {
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .form-field input,
+  .form-field textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 0.78rem 1rem;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.2s;
+    resize: none;
+  }
+  .form-field input:focus,
+  .form-field textarea:focus {
+    border-color: var(--accent);
+    background: var(--white);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  .form-field input::placeholder,
+  .form-field textarea::placeholder { color: var(--text-faint); }
+  .form-field textarea { height: 120px; }
+
+  /* ══════════════════════════════════════
+     FOOTER
+  ══════════════════════════════════════ */
+  footer {
+    padding: 1.8rem 3rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1.5px solid var(--border);
+    background: var(--white);
+  }
+  .footer-copy {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+  .footer-dot {
+    width: 7px; height: 7px;
+    background: var(--green-400);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px var(--green-100);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  /* ══════════════════════════════════════
+     DIVIDER
+  ══════════════════════════════════════ */
+  .divider {
+    width: 100%;
+    height: 1.5px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+  }
+
+  /* ══════════════════════════════════════
+     ANIMATIONS
+  ══════════════════════════════════════ */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(28px);
+    animation: fadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.28s; }
+  .delay-3 { animation-delay: 0.46s; }
+  .delay-4 { animation-delay: 0.62s; }
+
+  /* ══════════════════════════════════════
+     RESPONSIVE
+  ══════════════════════════════════════ */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 4rem 1.5rem; }
+    #hero { padding: 7rem 1.5rem 3rem; }
+    .hero-orb, .hero-ring { display: none; }
+    .hero-stats { gap: 1.5rem; flex-wrap: wrap; }
+    .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+    .projects-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 3.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">ABDUL HALEEM KHAN // GIS.RS</div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#skills">Skills</a>
+    <a href="#projects">Projects</a>
+    <a href="#experience">Experience</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="about" style="max-width:100%; padding:0;">
+<div id="hero">
+  <div class="hero-dots"></div>
+  <div class="hero-orb"></div>
+  <div class="hero-ring"></div>
+
+  <div class="available-badge fade-up">
+    <div class="badge-dot"></div>
+    Available for freelance &amp; consulting
+  </div>
+
+  <div class="hero-tag fade-up delay-1">GIS Engineer · Remote Sensing Specialist · Geospatial Analyst</div>
+
+  <h1 class="fade-up delay-2">
+    <span class="name-first">Abdul Haleem Khan</span>
+  </h1>
+
+  <p class="hero-desc fade-up delay-3">
+    Transforming satellite imagery and spatial data into actionable geospatial intelligence.
+    Based in Saudi Arabia working with clients worldwide.
+  </p>
+
+  <div class="hero-pills fade-up delay-3">
+    <span class="pill">🛰️ Remote Sensing</span>
+    <span class="pill">🗺️ Spatial Analysis</span>
+    <span class="pill">🐍 Python / GEE</span>
+    <span class="pill">🏙️ Urban Planning</span>
+    <span class="pill">🌿 LULC Classification</span>
+    <span class="pill">📡 Sentinel &amp; Landsat</span>
+    <span class="pill">🌡️ LST Analysis</span>
+    <span class="pill">☁️ Carbon Monitoring</span>
+  </div>
+
+  <div class="hero-ctas fade-up delay-4">
+    <a href="#projects" class="btn-primary">↓ View Projects</a>
+    <a href="https://www.linkedin.com/in/abdul-haleem-khan-rs-gis-specialist/" target="_blank" class="btn-outline">LinkedIn →</a>
+    <a href="mailto:abdulhaleemk03@gmail.com" class="btn-outline">Contact Me</a>
+  </div>
+
+  <div class="hero-stats fade-up delay-4">
+    <div class="stat-item">
+      <div class="stat-num">30+</div>
+      <div class="stat-label">Major Projects</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">3+</div>
+      <div class="stat-label">Years Experience</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">MSc</div>
+      <div class="stat-label">GIS · Univ. Punjab</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">🌍</div>
+      <div class="stat-label">KSA · Pakistan · Global</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-label">Expertise</div>
+  <h2>Tech Stack &amp; Capabilities</h2>
+  <p class="section-sub">A full toolkit across GIS, remote sensing, programming, and spatial data science.</p>
+
+  <div class="skills-grid">
+    <div class="skill-card">
+      <div class="skill-icon">🗺️</div>
+      <div class="skill-title">GIS Software</div>
+      <div class="skill-items">
+        <span>ArcGIS Pro</span><span>QGIS</span><span>ArcGIS Online</span><span>ArcMap</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🛰️</div>
+      <div class="skill-title">Remote Sensing</div>
+      <div class="skill-items">
+        <span>ENVI</span><span>Google Earth Engine</span><span>Sentinel-1/2</span><span>Landsat 8/9</span><span>MODIS</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🐍</div>
+      <div class="skill-title">Programming</div>
+      <div class="skill-items">
+        <span>Python</span><span>GeoPandas</span><span>Rasterio</span><span>GDAL</span><span>JavaScript</span><span>R</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🗄️</div>
+      <div class="skill-title">Databases &amp; Web</div>
+      <div class="skill-items">
+        <span>PostgreSQL</span><span>PostGIS</span><span>MySQL</span><span>Leaflet</span><span>MapServer</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">📊</div>
+      <div class="skill-title">Data Visualization</div>
+      <div class="skill-items">
+        <span>Power BI</span><span>Tableau</span><span>Matplotlib</span><span>Plotly</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🧠</div>
+      <div class="skill-title">Spatial Analysis</div>
+      <div class="skill-items">
+        <span>LULC Classification</span><span>Change Detection</span><span>MCDA</span><span>Geostatistics</span><span>Suitability Modeling</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">📡</div>
+      <div class="skill-title">Field Skills</div>
+      <div class="skill-items">
+        <span>GPS / GNSS</span><span>Survey Data Collection</span><span>Ground Truth</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🤖</div>
+      <div class="skill-title">AI &amp; ML</div>
+      <div class="skill-items">
+        <span>Random Forest</span><span>SVM</span><span>Time-Series ML</span><span>Deep Learning (RS)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-label">Portfolio</div>
+  <h2>Featured Projects</h2>
+  <p class="section-sub">Real-world GIS &amp; remote sensing projects across urban planning, environmental monitoring, and spatial analysis.</p>
+
+  <div class="projects-grid">
+
+    <div class="project-card">
+      <div class="project-map project-map-urban">
+        <div class="map-grid-overlay"></div>
+        🏙️
+      </div>
+      <div class="project-body">
+        <div class="project-tags">
+          <span class="project-tag tag-rs">Remote Sensing</span>
+          <span class="project-tag tag-py">Python</span>
+          <span class="project-tag tag-gis">Change Detection</span>
+        </div>
+        <div class="project-title">Urban Sprawl Analysis - Mardan City</div>
+        <p class="project-desc">Multi-year satellite imagery analysis to detect and quantify urban expansion using supervised classification and change detection algorithms.</p>
+        <a href="https://github.com/Abdul-Haleem-Khan-RS-GIS/GIS-RemoteSensing-Portfolio" class="project-link" target="_blank">View on GitHub →</a>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-map project-map-solar">
+        <div class="map-grid-overlay"></div>
+        ☀️
+      </div>
+      <div class="project-body">
+        <div class="project-tags">
+          <span class="project-tag tag-gis">MCDA</span>
+          <span class="project-tag tag-gee">Suitability</span>
+          <span class="project-tag tag-py">Python</span>
+        </div>
+        <div class="project-title">Solar Power Plant Site Selection</div>
+        <p class="project-desc">Multi-Criteria Decision Analysis (MCDA) to identify optimal solar farm locations by evaluating slope, aspect, solar radiation, land cover, and infrastructure proximity.</p>
+        <a href="https://github.com/Abdul-Haleem-Khan-RS-GIS/GIS-RemoteSensing-Portfolio" class="project-link" target="_blank">View on GitHub →</a>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-map project-map-lst">
+        <div class="map-grid-overlay"></div>
+        🌡️
+      </div>
+      <div class="project-body">
+        <div class="project-tags">
+          <span class="project-tag tag-rs">Landsat 8</span>
+          <span class="project-tag tag-gee">Thermal</span>
+          <span class="project-tag tag-py">Python</span>
+        </div>
+        <div class="project-title">Land Surface Temperature - New York City</div>
+        <p class="project-desc">Processing Landsat 8 thermal bands to identify urban heat island zones and hotspot distribution across NYC boroughs using thermal remote sensing.</p>
+        <a href="https://github.com/Abdul-Haleem-Khan-RS-GIS/GIS-RemoteSensing-Portfolio" class="project-link" target="_blank">View on GitHub →</a>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-map project-map-carbon">
+        <div class="map-grid-overlay"></div>
+        🌫️
+      </div>
+      <div class="project-body">
+        <div class="project-tags">
+          <span class="project-tag tag-ai">AI / ML</span>
+          <span class="project-tag tag-gee">Sentinel-5P</span>
+          <span class="project-tag tag-py">Python</span>
+        </div>
+        <div class="project-title">Carbon Emission Monitoring with AI</div>
+        <p class="project-desc">Using Sentinel-5P satellite data to monitor CO₂ concentrations with ML time-series models to detect temporal emission patterns and anomalies.</p>
+        <a href="https://github.com/Abdul-Haleem-Khan-RS-GIS/GIS-RemoteSensing-Portfolio" class="project-link" target="_blank">View on GitHub →</a>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-map project-map-cadastral">
+        <div class="map-grid-overlay"></div>
+        📐
+      </div>
+      <div class="project-body">
+        <div class="project-tags">
+          <span class="project-tag tag-gis">Cadastral</span>
+          <span class="project-tag tag-rs">High-Res Imagery</span>
+        </div>
+        <div class="project-title">Cadastral Mapping - Punjab (PULSE)</div>
+        <p class="project-desc">Digitizing land parcels from high-resolution aerial imagery to improve land records, tax mapping, and boundary dispute resolution across Punjab province.</p>
+        <a href="https://github.com/Abdul-Haleem-Khan-RS-GIS/GIS-RemoteSensing-Portfolio" class="project-link" target="_blank">View on GitHub →</a>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-map project-map-master">
+        <div class="map-grid-overlay"></div>
+        🏛️
+      </div>
+      <div class="project-body">
+        <div class="project-tags">
+          <span class="project-tag tag-gis">Urban Planning</span>
+          <span class="project-tag tag-gee">Land Use</span>
+        </div>
+        <div class="project-title">Master Planning - Punjab &amp; KPK (PICIP / UPU)</div>
+        <p class="project-desc">Strategic spatial planning for multiple cities: zoning, land-use classification, transport network analysis, and growth modeling for two provincial governments.</p>
+        <a href="https://github.com/Abdul-Haleem-Khan-RS-GIS/GIS-RemoteSensing-Portfolio" class="project-link" target="_blank">View on GitHub →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-label">Career</div>
+  <h2>Work Experience</h2>
+  <p class="section-sub">Delivering geospatial solutions across government, engineering, and international freelance projects.</p>
+
+  <div class="timeline">
+
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-date">2024 – PRESENT</div>
+      <div class="timeline-role">GIS Engineer</div>
+      <div class="timeline-company">🏛️ MUNICIPALITY UYUN AL JAWA · Saudi Arabia</div>
+      <ul class="timeline-points">
+        <li>Geospatial analysis for urban and infrastructure planning decisions</li>
+        <li>Maintaining and managing enterprise GIS databases</li>
+        <li>Automating spatial workflows using Python (GDAL, GeoPandas)</li>
+        <li>Creating professional maps and dashboards for decision-makers</li>
+      </ul>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-date">2024 – 2024</div>
+      <div class="timeline-role">Junior GIS Expert</div>
+      <div class="timeline-company">🏗️ NESPAK · Pakistan</div>
+      <ul class="timeline-points">
+        <li>Spatial modeling and geostatistical analysis for engineering projects</li>
+        <li>Supported engineering teams with geospatial datasets and maps</li>
+      </ul>
+    </div>
+
+
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-date">2023 – 2024</div>
+      <div class="timeline-role">GIS Analyst</div>
+      <div class="timeline-company">🏙️ SHEHERSAAZ · Pakistan</div>
+      <ul class="timeline-points">
+        <li>Land-use planning and spatial risk assessment projects</li>
+        <li>GIS-based solutions for environmental and urban development</li>
+        <li>Master planning support for Punjab &amp; KPK governments</li>
+      </ul>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-date">2021 – 2022</div>
+      <div class="timeline-role">Junior GIS Expert</div>
+      <div class="timeline-company">🏗️ NESPAK · Pakistan</div>
+      <ul class="timeline-points">
+        <li>Spatial modeling and geostatistical analysis for engineering projects</li>
+        <li>Supported engineering teams with geospatial datasets and maps</li>
+      </ul>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-date">ONGOING</div>
+      <div class="timeline-role">Freelance GIS Analyst</div>
+      <div class="timeline-company">💻 UPWORK · Remote / International</div>
+      <ul class="timeline-points">
+        <li>Delivering GIS/RS projects for international clients worldwide</li>
+        <li>Interactive dashboards, suitability models, geospatial visualizations</li>
+        <li>Python automation scripts for remote sensing workflows</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div style="margin-top:3rem;">
+    <div class="section-label">Education</div>
+    <div class="edu-card" style="margin-top:1.2rem;">
+      <div class="edu-icon">🎓</div>
+      <div>
+        <div class="edu-degree">MSc in Geographic Information Systems (GIS)</div>
+        <div class="edu-uni">UNIVERSITY OF THE PUNJAB</div>
+        <div class="edu-year">2020 – 2022 · Lahore, Pakistan</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section id="contact" style="max-width:100%; padding: 6rem 3rem;">
+  <div style="max-width:1200px; margin:0 auto;">
+  <div class="contact-grid">
+    <div class="contact-info">
+      <div class="section-label">Get In Touch</div>
+      <h2>Let's Work Together</h2>
+      <p class="section-sub" style="margin-bottom:0">
+        Available for GIS consulting, remote sensing projects, spatial analysis, and freelance work. Let's solve your geospatial challenges.
+      </p>
+      <div class="contact-links">
+        <a href="mailto:abdulhaleemk03@gmail.com" class="contact-link">
+          <div class="contact-link-icon">✉️</div>
+          abdulhaleemk03@gmail.com
+        </a>
+        <a href="https://www.linkedin.com/in/abdul-haleem-khan-rs-gis-specialist/" target="_blank" class="contact-link">
+          <div class="contact-link-icon">💼</div>
+          linkedin.com/in/abdul-haleem-khan-rs-gis-specialist
+        </a>
+        <a href="https://github.com/Abdul-Haleem-Khan-RS-GIS" target="_blank" class="contact-link">
+          <div class="contact-link-icon">🐙</div>
+          github.com/Abdul-Haleem-Khan-RS-GIS
+        </a>
+        <a class="contact-link">
+          <div class="contact-link-icon">📍</div>
+          Uyun Al Jawa, Saudi Arabia
+        </a>
+      </div>
+    </div>
+
+    <div>
+      <div class="contact-form">
+        <h3>Send a Message</h3>
+        <div class="form-field">
+          <label class="form-label">Your Name</label>
+          <input type="text" placeholder="John Smith"/>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Email</label>
+          <input type="email" placeholder="john@company.com"/>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Message</label>
+          <textarea placeholder="Tell me about your project..."></textarea>
+        </div>
+        <a href="mailto:abdulhaleemk03@gmail.com" class="btn-primary" style="text-align:center; justify-content:center;">
+          Send Message →
+        </a>
+      </div>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-copy">© 2025 Abdul Haleem Khan · GIS &amp; Remote Sensing Portfolio</div>
+  <div class="footer-dot"></div>
+  <div class="footer-copy">Built with GitHub Pages</div>
+</footer>
+
+</body>
+</html>
